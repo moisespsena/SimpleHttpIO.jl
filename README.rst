@@ -23,4 +23,4 @@ Install
 Usage Example
 -------------
 
-See tests/runtests.jl for usage examples.
+See test/runtests.jl for usage examples.
