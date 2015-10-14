@@ -9,6 +9,8 @@ facts("Test io") do
             "have everlasting life.",
             "(John 3:16)"]
 
+    num_lines = length(data)
+
     context("writer") do
         io = IOSocket(IOBuffer())
 
@@ -77,6 +79,21 @@ facts("Test io") do
         end
 
         context("Base.eachline") do
+            seekstart(io.io)
+
+            context("loop Base.eachline :s") do
+                i = 1
+                for line in eachline(io, :s)
+                    @fact line --> (data[i] * CRLF)
+
+                    if i == num_lines
+                        break
+                    end
+
+                    i += 1
+                end
+            end
+
             seekstart(io.io)
 
             context("Base.eachline :s") do

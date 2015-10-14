@@ -63,6 +63,9 @@ Base.readline(io::AbstractIOSocket) = readline_(io)
 
 readline_bare_str(io::AbstractIOSocket) = UTF8String(readline_bare(io))
 
+const LINE_READERS = [:s => readline_str, :s! => readline_bare_str,
+                      :b => readline_, :b! => readline_bare]
+
 type EachLineStopIterator <: Exception end
 
 type EachLine
@@ -74,6 +77,8 @@ end
 stop() = throw(EachLineStopIterator())
 
 Base.eachline(stream::AbstractIOSocket, reader::Function=Base.readline) = EachLine(stream, reader, 0)
+Base.eachline(stream::AbstractIOSocket, reader::Symbol=:b) = EachLine(stream, LINE_READERS[reader], 0)
+
 Base.eachline(cb::Function, stream::AbstractIOSocket, reader::Function=Base.readline) = begin
     itr = Base.eachline(stream, reader)
 
@@ -90,15 +95,13 @@ Base.eachline(cb::Function, stream::AbstractIOSocket, reader::Function=Base.read
     itr.count
 end
 
-const LINE_READERS = [:s => readline_str, :s! => readline_bare_str,
-                      :b => readline_, :b! => readline_bare]
-
 Base.eachline(cb::Function, stream::AbstractIOSocket, reader::Symbol) = begin
     Base.eachline(cb, stream, LINE_READERS[reader])
 end
 
 Base.start(itr::EachLine) = (itr.count = 0; nothing)
 Base.done(itr::EachLine, nada) = false
+
 Base.next(itr::EachLine, nada) = begin
     itr.count += 1
     itr.reader(itr.stream), nothing
