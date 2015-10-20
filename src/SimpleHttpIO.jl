@@ -14,6 +14,10 @@ export readline_bare,
        LINE_READERS
 
 const CRLF = "\r\n"
+const N = Void
+const N_TYPE = Type{Void}
+const STR_TYPE = isdefined(:AbstractString)? AbstractString : String
+const BYTE_TYPE = isdefined(:UInt8)? UInt8 : Uint8
 
 abstract AbstractIOSocket
 
@@ -24,16 +28,11 @@ end
 
 IOSocket(io::IO; kwargs...) = IOSocket(io, Dict{Any, Any}(kwargs))
 
-if !isdefined(:UInt8)
-    const BYTE_TYPE = Uint8
-else
-    const BYTE_TYPE = UInt8
-end
 
 function writeln(io::AbstractIOSocket, args...)
     s = Base.write(io.io, args...)
     s2 = Base.write(io.io, CRLF.data)
-    (s != nothing ? s : 0) + s2
+    (isa(s, Integer) ? s : 0) + s2
 end
 
 Base.read{T}(io::AbstractIOSocket, t::Type{T}, bs::Int32) = Base.read(io.io, t , bs)
@@ -42,7 +41,7 @@ Base.readbytes(io::AbstractIOSocket, size::Integer=1024) = Base.read(io.io, BYTE
 readbyte(io::AbstractIOSocket) = readbytes(io, 1)[1]
 readline_(io::AbstractIOSocket) = begin
     buf = BYTE_TYPE[]
-    last = Nothing
+    last = N_TYPE
 
     while true
         b = read(io.io, BYTE_TYPE, 1)[1]
@@ -99,12 +98,12 @@ Base.eachline(cb::Function, stream::AbstractIOSocket, reader::Symbol) = begin
     Base.eachline(cb, stream, LINE_READERS[reader])
 end
 
-Base.start(itr::EachLine) = (itr.count = 0; nothing)
+Base.start(itr::EachLine) = (itr.count = 0; N)
 Base.done(itr::EachLine, nada) = false
 
 Base.next(itr::EachLine, nada) = begin
     itr.count += 1
-    itr.reader(itr.stream), nothing
+    itr.reader(itr.stream), N
 end
 
 end
