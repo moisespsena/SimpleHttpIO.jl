@@ -1,8 +1,8 @@
 module SimpleHttpIO
 
-export readline_bare,
-       readline_str,
-       readline_bare_str,
+export readlinebare,
+       readlinestr,
+       readlinebarestr,
        AbstractIOSocket,
        writeln,
        CRLF,
@@ -56,14 +56,14 @@ readline_(io::AbstractIOSocket) = begin
     buf
 end
 
-readline_str(io::AbstractIOSocket) = UTF8String(readline_(io))
-readline_bare(io::AbstractIOSocket) = readline_(io)[1:end-2]
+readlinestr(io::AbstractIOSocket) = UTF8String(readline_(io))
+readlinebare(io::AbstractIOSocket) = readline_(io)[1:end-2]
 Base.readline(io::AbstractIOSocket) = readline_(io)
 
-readline_bare_str(io::AbstractIOSocket) = UTF8String(readline_bare(io))
+readlinebarestr(io::AbstractIOSocket) = UTF8String(readlinebare(io))
 
-const LINE_READERS = [:s => readline_str, :s! => readline_bare_str,
-                      :b => readline_, :b! => readline_bare]
+const LINE_READERS = [:s => readlinestr, :s! => readlinebarestr,
+                      :b => readline_, :b! => readlinebare]
 
 type EachLineStopIterator <: Exception end
 

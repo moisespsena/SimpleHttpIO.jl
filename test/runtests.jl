@@ -52,28 +52,28 @@ facts("Test io") do
 
         seekstart(io.io)
 
-        context("readline_bare") do
+        context("readlinebare") do
             for eline in data
-                line = readline_bare(io)
+                line = readlinebare(io)
                 @fact line --> eline.data
             end
         end
 
         seekstart(io.io)
 
-        context("readline_str") do
+        context("readlinestr") do
             for eline in data
                 eline = eline * CRLF
-                line = readline_str(io)
+                line = readlinestr(io)
                 @fact line --> eline
             end
         end
 
         seekstart(io.io)
 
-        context("readline_bare_str") do
+        context("readlinebarestr") do
             for eline in data
-                line = readline_bare_str(io)
+                line = readlinebarestr(io)
                 @fact line --> eline
             end
         end
